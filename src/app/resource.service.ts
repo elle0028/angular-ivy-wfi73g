@@ -4,9 +4,6 @@ import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ResourceApiService } from './resource.api.service';
 import { EmptyUserModel, UserModel } from './user.model';
 
-type HasId = { id: number | string };
-type IdType<T> = T extends HasId ? T['id'] : never;
-
 @Injectable()
 export class ResourceService {
   // TODO: loading
@@ -34,11 +31,10 @@ export class ResourceService {
   }
 
   updateUser(user: UserModel): Observable<void> {
-    return this.api
-      .updateUser(user.toApiModel())
-      .pipe(
-        tap(() => console.log('updated')),
-        tap(() => this.refreshCachedResource()));
+    return this.api.updateUser(user.toApiModel()).pipe(
+      tap(() => console.log('updated')),
+      tap(() => this.refreshCachedResource())
+    );
   }
 
   private refreshCachedResource() {
