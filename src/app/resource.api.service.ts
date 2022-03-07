@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 import { UserApiModel, UserModel } from './user.model';
 
 function delay() {
-  return Math.floor(Math.random() * 2000) + 2;
+  return Math.floor(Math.random() * 2000) + 2000;
 }
 
 let mattApi = {
@@ -36,7 +36,8 @@ export class ResourceApiService {
   constructor() {}
 
   getUserById(id: number): Observable<UserModel> {
-    return of(randomUser());
+    console.log('getting', id);
+    return of(randomUser(id));
   }
 
   updateUser(user: UserApiModel): Observable<void> {
@@ -49,7 +50,7 @@ export class ResourceApiService {
       apiUser.email = user.email;
       apiUser.firstName = user.firstName;
       apiUser.lastName = user.lastName;
-      console.log('updated', apiUser.username);
+      console.log('updating', apiUser.username);
       return timer(delay()).pipe(map(() => {}));
     }
     // Create new
@@ -57,12 +58,10 @@ export class ResourceApiService {
   }
 }
 
-function randomUser(): UserModel {
-  const r = Math.floor(Math.random() * 3);
-  console.log('getting', [mattApi, alexApi, tadoApi]);
+function randomUser(id: number): UserModel {
   return [
     new UserModel(mattApi),
     new UserModel(alexApi),
     new UserModel(tadoApi),
-  ][r];
+  ][id];
 }

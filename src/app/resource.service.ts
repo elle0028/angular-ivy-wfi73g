@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { ResourceApiService } from './resource.api.service';
 import { EmptyUserModel, UserModel } from './user.model';
 
@@ -9,6 +9,8 @@ type IdType<T> = T extends HasId ? T['id'] : never;
 
 @Injectable()
 export class ResourceService {
+  // TODO: loading
+
   private cachedResourceId$ = new BehaviorSubject<number>(-1);
   private refreshCachedResource$ = new Subject<void>();
 
@@ -18,7 +20,8 @@ export class ResourceService {
   constructor(private api: ResourceApiService) {
     this.cachedResource$ = this.cachedResourceId$.pipe(
       tap((id) => console.log('id', id)),
-      switchMap((id) => this.newOrGetById(id))
+      switchMap((id) => this.newOrGetById(id)),
+      shareReplay(1)
     );
     this.editingResource$ = this.cachedResource$.pipe(
       map((user) => user.clone())
@@ -33,7 +36,9 @@ export class ResourceService {
   updateUser(user: UserModel): Observable<void> {
     return this.api
       .updateUser(user.toApiModel())
-      .pipe(tap(() => this.refreshCachedResource()));
+      .pipe(
+        tap(() => console.log('updated')),
+        tap(() => this.refreshCachedResource()));
   }
 
   private refreshCachedResource() {

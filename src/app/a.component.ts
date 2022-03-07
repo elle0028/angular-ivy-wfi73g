@@ -23,11 +23,13 @@ import { UserModel } from './user.model';
     <button (click)="getRandomUser()">Get Random User</button>
     <button (click)="getNewUser()">Get Empty User</button>
     <br />
-    <button [disabled]= "!isDirty" (click)="save()">Save</button>
+    <button [disabled]= "!isDirty || loading" (click)="save()">Save</button>
+    <span *ngIf="loading">loading...</span>
   `,
   styles: [`h1 { font-family: Lato; }`],
 })
 export class AComponent implements OnInit {
+  loading: boolean = false;
   isDirty: boolean = false;
   cachedUser: UserModel;
   editingUser: UserModel;
@@ -49,7 +51,7 @@ export class AComponent implements OnInit {
   }
 
   getRandomUser() {
-    this.service.getUserById(Math.ceil(Math.random() * 10));
+    this.service.getUserById(Math.floor(Math.random() * 3));
   }
 
   getNewUser() {
@@ -57,7 +59,11 @@ export class AComponent implements OnInit {
   }
 
   save() {
-    this.service.updateUser(this.editingUser).subscribe();
+    this.loading = true;
+    this.service.updateUser(this.editingUser).subscribe(() => {
+      this.loading = false;
+      console.log('After Save');
+    });
   }
 
   compare() {
